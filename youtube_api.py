@@ -18,8 +18,6 @@ def extract_data():
         # Create a DictReader object
         reader = csv.DictReader(csvfile)
 
-        # Skip the headers
-        next(reader)
 
         # Iterate over each row in the CSV file
         for row in reader:
@@ -39,13 +37,14 @@ def extract_data():
                     # Make API request to retrieve detailed video information
                     video_response = (
                         youtube.videos()
-                        .list(part="snippet,statistics", id=video_id)
+                        .list(part="snippet,contentDetails,statistics", id=video_id)
                         .execute()
                     )
 
                     # Extract additional details from video response
                     if "items" in video_response and video_response["items"]:
                         video_info = video_response["items"][0]["snippet"]
+                        video_content_details = video_response["items"][0]["contentDetails"]
                         video_stats = video_response["items"][0].get("statistics", {})
 
                         csv_filename = "../youtube_history.csv"
@@ -64,6 +63,7 @@ def extract_data():
                                 "video_comment_count",
                                 "video_description",
                                 "video_tags",
+                                "video_duration",
                             ],
                         ] = (
                             str(video_id),  # Assuming video_id is a string
@@ -94,6 +94,7 @@ def extract_data():
                             ",".join(
                                 video_info.get("tags", "")
                             ),  # Assuming video_tags is a string
+                            str(clean_time(video_content_details.get("duration", ""))),  # Assuming video_duration is a string
                         )
 
                         df.to_csv(csv_filename, index=False)
@@ -119,6 +120,15 @@ def extract_video_id(video_url):
     else:
         logging.warning("Invalid or missing video URL: %s", video_url)
         return None
+
+
+def clean_time(duration):
+    duration = pd.Timedelta(duration)
+    hours = duration.seconds // 3600
+    minutes = (duration.seconds % 3600) // 60
+    seconds = duration.seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
 
 
 extract_data()

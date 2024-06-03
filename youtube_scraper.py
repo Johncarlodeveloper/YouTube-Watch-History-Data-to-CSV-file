@@ -3,7 +3,7 @@ import csv
 
 
 def main():
-    html_file_path = "history.html"
+    html_file_path = "../history.html"
     # Read the HTML file
     with open(html_file_path, "r", encoding="utf-8") as file:
         html_content = file.read()
@@ -31,7 +31,7 @@ def main():
         # additional data
         video_id = video_thumbnail = video_date_upload = video_views = video_likes = (
             video_dislikes
-        ) = video_comment_count = video_description = video_tags = None
+        ) = video_comment_count = video_description = video_tags = duration = None
 
         # Find the second <a> tag for the channel name
         if title_element:
@@ -50,6 +50,7 @@ def main():
             {
                 "title": title,
                 "url": url,
+                "video_duration": duration,
                 "channel_name": channel_name,
                 "channel_url": channel_url,
                 "date_time": cleaned_date_time,
@@ -72,6 +73,7 @@ def main():
         fieldnames = [
             "title",
             "url",
+            "video_duration",
             "channel_name",
             "channel_url",
             "date_time",
