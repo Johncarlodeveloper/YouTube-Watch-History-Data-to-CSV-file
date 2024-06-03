@@ -65,7 +65,7 @@ def main():
             }
         )
 
-    csv_filename = "youtube_history.csv"
+    csv_filename = "../youtube_history.csv"
 
     # Write the data to a CSV file
     with open(csv_filename, "w", newline="", encoding="utf-8") as csvfile:
