@@ -11,7 +11,7 @@ def extract_data():
 
     # Set up YouTube Data API client
     youtube = build(
-        "youtube", "v3", developerKey="AIzaSyASJ2J8veRMGEUs69uvkRpGRhomjCyePsA"
+        "youtube", "v3", developerKey="API KEY"
     )
 
     with open("../youtube_history.csv", "r", newline="", encoding="latin-1") as csvfile:
