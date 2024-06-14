@@ -3,7 +3,7 @@ import csv
 
 
 def main():
-    html_file_path = "../history.html"
+    html_file_path = "watch-history.html"
     # Read the HTML file
     with open(html_file_path, "r", encoding="utf-8") as file:
         html_content = file.read()
@@ -20,13 +20,11 @@ def main():
     for video in video_elements:
         # Find the first <a> tag for the title and URL
         title_element = video.find("a")
-        title = title_element.text.strip() if title_element else "Title not found"
-        url = title_element["href"] if title_element else "URL not found"
+        title = title_element.text.strip() if title_element else None
+        url = title_element["href"] if title_element else None
 
         # Initialize default values for channel name and date time
-        channel_name = "Unknown Channel"
-        channel_url = "Unknown URL"
-        date_time = "Unknown Date/Time"
+        channel_name = channel_url = date_time = None
 
         # additional data
         video_id = video_thumbnail = video_date_upload = video_views = video_likes = (
@@ -66,7 +64,7 @@ def main():
             }
         )
 
-    csv_filename = "../youtube_history.csv"
+    csv_filename = "new_history.csv"
 
     # Write the data to a CSV file
     with open(csv_filename, "w", newline="", encoding="utf-8") as csvfile:

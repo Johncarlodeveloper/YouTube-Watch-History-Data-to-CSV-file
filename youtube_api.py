@@ -14,7 +14,7 @@ def extract_data():
         "youtube", "v3", developerKey="AIzaSyASJ2J8veRMGEUs69uvkRpGRhomjCyePsA"
     )
 
-    with open("../youtube_history.csv", "r", newline="", encoding="latin-1") as csvfile:
+    with open("testing.csv", "r", newline="", encoding="latin-1") as csvfile:
         # Create a DictReader object
         reader = csv.DictReader(csvfile)
 
@@ -47,7 +47,7 @@ def extract_data():
                         video_content_details = video_response["items"][0]["contentDetails"]
                         video_stats = video_response["items"][0].get("statistics", {})
 
-                        csv_filename = "../youtube_history.csv"
+                        csv_filename = "testing.csv"
                         # read the csv file
                         df = pd.read_csv(csv_filename)
                         # locate each video url and update the returned data from API such as views and likes
