@@ -10,6 +10,6 @@ def duplicate_csv(original_file, new_file):
 
 
 # Example usage
-original_file = 'testing.csv'
-new_file = 'save.csv'
+original_file = 'save.csv'
+new_file = 'last.csv'
 duplicate_csv(original_file, new_file)
