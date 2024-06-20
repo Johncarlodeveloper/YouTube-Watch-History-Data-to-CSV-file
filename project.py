@@ -1,25 +1,27 @@
 # import necessary libraries
 import csv
+import sys
+
 import isodate
 import logging
 import re
 
 import pandas as pd
-import pytz
 from bs4 import (
     BeautifulSoup,
 )  # for parsing data from html file of YouTube Watch History
 from googleapiclient.discovery import build
 from datetime import datetime
+from dateutil import parser
 
 
 def main():
     html_file_path = "watch-history.html"
     # The output file as csv
     youtube_data = "youtube_data.csv"
-    # Call function to extract preliminary data from the hmtl file
+
     extract_data_from_html(html_file_path, youtube_data)
-    # Call function to extract additional data from the YouTube API
+
     extract_data_from_api(youtube_data)
 
     print("Data extraction completed.")
@@ -61,7 +63,7 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
         (1) the video being removed/deleted from YouTube, or (2) the element being a YouTube Ad.
         In such cases, we skip to the next HTML element and do not include videos with missing information.
         """
-        if not title or (
+        if title is None or (
             match := re.search(
                 r"https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]+)", title
             )
@@ -75,9 +77,9 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
         channel_name = channel_url = date_time = None
 
         # additional data
-        video_date_upload = video_views = video_likes = video_dislikes = (
+        video_date_upload = video_views = video_likes = (
             video_comment_count
-        ) = video_description = video_tags = video_duration = None
+        ) = video_description = video_tags = video_duration = video_category = None
 
         # Find the second <a> tag for the channel name
         if title_element:
@@ -90,7 +92,12 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
                 date_time_element = channel_element.find_next_sibling(string=True)
                 if date_time_element:
                     date_time = date_time_element.strip()
-                    cleaned_date_time = clean_date_time(date_time)
+
+                    # Parse the string into a datetime object
+                    dt = parser.parse(date_time, ignoretz=True)
+
+                    # Format the datetime object without timezone information
+                    date_time = dt.strftime("%b %d, %Y, %I:%M:%S %p")
 
         videos_data.append(
             {
@@ -101,9 +108,9 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
                 "channel_url": channel_url,
                 "date_time": date_time,
                 "video_date_upload": video_date_upload,
+                "video_category": video_category,
                 "video_views": video_views,
                 "video_likes": video_likes,
-                "video_dislikes": video_dislikes,
                 "video_comment_count": video_comment_count,
                 "video_description": video_description,
                 "video_tags": video_tags,
@@ -120,9 +127,9 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
             "channel_url",
             "date_time",
             "video_date_upload",
+            "video_category",
             "video_views",
             "video_likes",
-            "video_dislikes",
             "video_comment_count",
             "video_description",
             "video_tags",
@@ -150,12 +157,14 @@ def extract_data_from_api(youtube_data: str) -> None:  # Set up logging
     """
 
     # Set up logging
-    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger()
+    logging.basicConfig(level=logging.INFO)
 
     # Set up YouTube API client
     youtube = build(
-        "youtube", "v3", developerKey="AIzaSyASJ2J8veRMGEUs69uvkRpGRhomjCyePsA"
+        "youtube", "v3", developerKey="AIzaSyC_T4Zkfjj72yyr_CeqrByvEM-QrXCmdvE"
     )
+
 
     # Read the csv file to iterate on every YouTube Video
     with open(youtube_data, "r", newline="", encoding="latin-1") as csvfile:
@@ -163,100 +172,92 @@ def extract_data_from_api(youtube_data: str) -> None:  # Set up logging
 
         for row in reader:
             # Access values by column names (keys in the dictionary)
-            video_url = row["url"]
+            video_url = row['url']
 
-            if video_url is not None:
-                print("Video Url:", video_url)
-                logging.debug("Processing video URL: %s", video_url)
+            if video_url and "https://www.youtube.com/watch?v=" in video_url:
+                print("Processing video URL: %s", video_url)
             else:
-                logging.warning("Encountered None value for video URL")
+                continue  # Skip this row and move to the next one
 
             video_id = extract_video_id(video_url)
 
-            if video_id:
-                try:
-                    # Make API request to retrieve detailed video information
-                    video_response = (
-                        youtube.videos()
-                        .list(part="snippet,contentDetails,statistics", id=video_id)
-                        .execute()
+            try:
+                # Make API request to retrieve detailed video information
+                video_response = (
+                    youtube.videos()
+                    .list(part="snippet,contentDetails,statistics", id=video_id)
+                    .execute()
+                )
+
+                # Extract additional details from video response
+                if "items" in video_response and video_response["items"]:
+                    video_info = video_response["items"][0]["snippet"]
+                    video_content_details = video_response["items"][0][
+                        "contentDetails"
+                    ]
+                    video_stats = video_response["items"][0].get("statistics", {})
+
+                    # read the csv file
+                    df = pd.read_csv(youtube_data)
+                    cast_dtype = ["video_duration", "video_description", "video_tags", "video_category", "video_date_upload"]
+                    # handle dtype error when reading the csv (pandas read the column dtype as float64)
+                    df[cast_dtype] = df[cast_dtype].astype('object')
+
+                    # locate each video url and update the returned data from API
+                    df.loc[
+                        df["url"] == video_url,
+                        [
+                            "video_date_upload",
+                            "video_category",
+                            "video_views",
+                            "video_likes",
+                            "video_comment_count",
+                            "video_description",
+                            "video_tags",
+                            "video_duration",
+                        ],
+                    ] = (
+                        str(
+                            process_datetime(video_info.get("publishedAt", ""))
+                        ),
+                        str(
+                            get_category_name(video_info.get("categoryId", ""))
+                        ),
+                        int(
+                            video_stats.get("viewCount", 0)
+                        ),
+                        int(
+                            video_stats.get("likeCount", 0)
+                        ),
+                        int(
+                            video_stats.get("commentCount", 0)
+                        ),
+                        str(
+                            video_info.get("description", "")
+                        ),
+                        ",".join(
+                            video_info.get("tags", "")
+                        ),
+                        str(
+                            clean_duration_time(
+                                video_content_details.get("duration", "")
+                            )
+                        ),
+
                     )
 
-                    # Extract additional details from video response
-                    if "items" in video_response and video_response["items"]:
-                        video_info = video_response["items"][0]["snippet"]
-                        video_content_details = video_response["items"][0][
-                            "contentDetails"
-                        ]
-                        video_stats = video_response["items"][0].get("statistics", {})
+                    df.to_csv(youtube_data, index=False, float_format='%.0f')
 
-                        # read the csv file
-                        df = pd.read_csv(youtube_data)
-                        # locate each video url and update the returned data from API
-                        df.loc[
-                            df["url"] == video_url,
-                            [
-                                "video_date_upload",
-                                "video_views",
-                                "video_likes",
-                                "video_dislikes",
-                                "video_comment_count",
-                                "video_description",
-                                "video_tags",
-                                "video_duration",
-                            ],
-                        ] = (
-                            str(
-                                process_datetime(video_info.get("publishedAt", ""))
-                            ),  # Assuming video_date_upload is a string
-                            int(
-                                video_stats.get("viewCount", 0)
-                            ),  # Assuming video_views is an integer
-                            int(
-                                video_stats.get("likeCount", 0)
-                            ),  # Assuming video_likes is an integer
-                            int(
-                                video_stats.get("dislikeCount", 0)
-                            ),  # Assuming video_dislikes is an integer
-                            int(
-                                video_stats.get("commentCount", 0)
-                            ),  # Assuming video_comment_count is an integer
-                            str(
-                                video_info.get("description", "")
-                            ),  # Assuming video_description is a string
-                            ",".join(
-                                video_info.get("tags", "")
-                            ),  # Assuming video_tags is a string
-                            str(
-                                clean_duration_time(
-                                    video_content_details.get("duration", "")
-                                )
-                            ),
-                            # Assuming video_duration is a string
-                        )
-
-                        df.to_csv(youtube_data, index=False)
-                    else:
-                        logging.warning(
-                            "No video items found in the response for video ID: %s",
-                            video_id,
-                        )
-                except Exception as e:
-                    logging.warning(
-                        "An error occurred while processing video ID %s: %s",
-                        video_id,
-                        e,
-                    )
-            else:
-                logging.warning("Failed to extract video ID from URL: %s", video_url)
+            except Exception as e:
+                logging.warning(
+                    "An error occurred while processing video ID %s: %s",
+                    video_id,
+                    e,
+                )
 
 
 def extract_video_id(video_url):
-    if video_url and "https://www.youtube.com/watch?v=" in video_url:
-        return video_url.replace("https://www.youtube.com/watch?v=", "")
-    else:
-        logging.warning("Invalid or missing video URL: %s", video_url)
-        return None
+    return video_url.replace("https://www.youtube.com/watch?v=", "")
 
 
 def clean_duration_time(duration: str) -> str:
@@ -286,7 +287,7 @@ def clean_duration_time(duration: str) -> str:
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
-def process_datetime(datetime_str):
+def process_datetime(datetime_str: str) -> str:
     """
     Cleans and formats an ISO 8601 duration string into a readable time format.
 
@@ -308,13 +309,43 @@ def process_datetime(datetime_str):
     return formatted_datetime
 
 
-def clean_date_time(date_time):
-    # Replace any non-ASCII characters with an empty string
-    cleaned_date_time = "".join(char for char in date_time if ord(char) < 128)
-    # Add any additional cleaning or formatting logic here if needed
-    if "PM" in cleaned_date_time:
-        return cleaned_date_time.replace("PM", " PM")
-    return cleaned_date_time.replace("AM", " AM")
+def get_category_name(category_id: str) -> str:
+    category_names = {
+        "2": "Autos & Vehicles",
+        "1": "Film & Animation",
+        "10": "Music",
+        "15": "Pets & Animals",
+        "17": "Sports",
+        "18": "Short Movies",
+        "19": "Travel & Events",
+        "20": "Gaming",
+        "21": "Videoblogging",
+        "22": "People & Blogs",
+        "23": "Comedy",
+        "24": "Entertainment",
+        "25": "News & Politics",
+        "26": "Howto & Style",
+        "27": "Education",
+        "28": "Science & Technology",
+        "29": "Nonprofits & Activism",
+        "30": "Movies",
+        "31": "Anime/Animation",
+        "32": "Action/Adventure",
+        "33": "Classics",
+        "34": "Comedy",
+        "35": "Documentary",
+        "36": "Drama",
+        "37": "Family",
+        "38": "Foreign",
+        "39": "Horror",
+        "40": "Sci-Fi/Fantasy",
+        "41": "Thriller",
+        "42": "Shorts",
+        "43": "Shows",
+        "44": "Trailers"
+    }
+
+    return category_names.get(category_id, "Unknown Category")
 
 
 if __name__ == "__main__":
