@@ -334,7 +334,7 @@ def get_category_name(category_id: str) -> str:
         "44": "Trailers"
     }
 
-    return category_names.get(category_id, "Unknown Category")
+    return category_names.get(category_id)
 
 
 if __name__ == "__main__":
