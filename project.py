@@ -3,12 +3,12 @@ import isodate
 import logging
 import re
 import pandas as pd
-from bs4 import (
-    BeautifulSoup,
-)
+from bs4 import BeautifulSoup
 from googleapiclient.discovery import build
 from datetime import datetime
 from dateutil import parser
+
+API_KEY = "AIzaSyC_T4Zkfjj72yyr_CeqrByvEM-QrXCmdvE"
 
 
 def main():
@@ -31,6 +31,7 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
     :return: None
     """
 
+    print("Extracting data from HTML file....")
     # Read the HTML file
     with open(html_file_path, "r", encoding="utf-8") as file:
         html_content = file.read()
@@ -137,7 +138,7 @@ def extract_data_from_api(youtube_data: str) -> None:
     # Set up YouTube API client
     # Go to https://developers.google.com/youtube/v3/getting-started for more information
     youtube = build(
-        "youtube", "v3", developerKey="AIzaSyC_T4Zkfjj72yyr_CeqrByvEM-QrXCmdvE"
+        "youtube", "v3", developerKey=API_KEY
     )
 
     print("The extraction process time varies on how big is the YouTube Watch History Data.\n")
