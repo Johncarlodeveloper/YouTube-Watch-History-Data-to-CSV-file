@@ -15,12 +15,10 @@ def main():
     html_file_path = "../watch-history.html"
     # The output file as csv
     youtube_data = "youtube_data.csv"
-
+    # Extract preliminary data from the html file and output in a csv format
     extract_data_from_html(html_file_path, youtube_data)
-
+    # Fill in the youtube data csv with additional data from YouTube API
     extract_data_from_api(youtube_data)
-
-    print("Data extraction completed.")
 
 
 def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
@@ -60,11 +58,10 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
         In such cases, we skip to the next HTML element and do not include videos with missing information.
         """
         if title is None or (
-            match := re.search(
+            re.search(
                 r"https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]+)", title
             )
         ):
-            logging.warning("No title found for a video element.")
             continue  # Skip to the next video element
 
         url = title_element["href"] if title_element else None
@@ -95,6 +92,7 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
                     # Format the datetime object without timezone information
                     date_time = dt.strftime("%b %d, %Y, %I:%M:%S %p")
 
+        # only the title, url, channel_name, channel_url, and date_time are filled for now
         videos_data.append(
             {
                 "title": title,
@@ -115,34 +113,18 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
 
     # Write the data to a CSV file
     with open(csv_output_path, "w", newline="", encoding="utf-8") as csvfile:
-        fieldnames = [
-            "title",
-            "url",
-            "video_duration",
-            "channel_name",
-            "channel_url",
-            "date_time",
-            "video_date_upload",
-            "video_category",
-            "video_views",
-            "video_likes",
-            "video_comment_count",
-            "video_description",
-            "video_tags",
-        ]
+        fieldnames = [data for data in videos_data[0].keys()]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
         # Write header
         writer.writeheader()
-
         # Write video data
         for video in videos_data:
             writer.writerow(video)
 
-    print(f"Scraped data saved to {csv_output_path}")
+    print(f"Scraped data saved to {csv_output_path}\n")
 
 
-def extract_data_from_api(youtube_data: str) -> None:  # Set up logging
+def extract_data_from_api(youtube_data: str) -> None:
     """
     This function takes a pre-existing CSV file that already contains some video information extracted from an HTML file.
     It iterates through each video in the CSV, requests additional information from the YouTube API,
@@ -152,15 +134,16 @@ def extract_data_from_api(youtube_data: str) -> None:  # Set up logging
     :return: None
     """
 
-    # Set up logging
-    logger = logging.getLogger()
-    logging.basicConfig(level=logging.INFO)
-
     # Set up YouTube API client
+    # Go to https://developers.google.com/youtube/v3/getting-started for more information
     youtube = build(
         "youtube", "v3", developerKey="AIzaSyC_T4Zkfjj72yyr_CeqrByvEM-QrXCmdvE"
     )
 
+    print("The extraction process time varies on how big is the YouTube Watch History Data.\n")
+    print("Extracting Data.......")
+
+    logging.basicConfig(level=logging.WARNING)
 
     # Read the csv file to iterate on every YouTube Video
     with open(youtube_data, "r", newline="", encoding="latin-1") as csvfile:
@@ -175,7 +158,7 @@ def extract_data_from_api(youtube_data: str) -> None:  # Set up logging
             else:
                 continue  # Skip this row and move to the next one
 
-            video_id = extract_video_id(video_url)
+            video_id = video_url.replace("https://www.youtube.com/watch?v=", "")
 
             try:
                 # Make API request to retrieve detailed video information
@@ -244,6 +227,8 @@ def extract_data_from_api(youtube_data: str) -> None:  # Set up logging
 
                     df.to_csv(youtube_data, index=False, float_format='%.0f')
 
+                    print("Successfully extracted data from YouTube API. Check the updated CSV file.")
+
             except Exception as e:
                 logging.warning(
                     "An error occurred while processing video ID %s: %s",
@@ -252,13 +237,9 @@ def extract_data_from_api(youtube_data: str) -> None:  # Set up logging
                 )
 
 
-def extract_video_id(video_url):
-    return video_url.replace("https://www.youtube.com/watch?v=", "")
-
-
 def clean_duration_time(duration: str) -> str:
     """
-    Cleans and formats an ISO 8601 duration string into a readable time format.
+    This function cleans and formats an ISO 8601 duration string into a readable time format.
 
     :param duration: A string representing the ISO 8601 duration (e.g., 'PT1H2M3S').
     :return: A string formatted as 'HH:MM:SS'.
@@ -285,14 +266,14 @@ def clean_duration_time(duration: str) -> str:
 
 def process_datetime(datetime_str: str) -> str:
     """
-    Cleans and formats an ISO 8601 duration string into a readable time format.
+    Cleans and formats an ISO 8601 datetime string into a readable time format.
 
     :param datetime_str: A string representing the ISO 8601 duration (e.g., '2017-11-13T06:06:22Z').
     :return: A string formatted as 'YYYY-MM-DD HH:MM:SS'.
 
     Example:
     >>> process_datetime('2017-11-13T06:06:22Z')
-    2017-11-13 06:06:22
+    '2017-11-13 06:06:22'
     >>> process_datetime('2020-04-10T05:36:02Z')
     '2020-04-10 05:36:02'
     """
@@ -306,6 +287,18 @@ def process_datetime(datetime_str: str) -> str:
 
 
 def get_category_name(category_id: str) -> str:
+    """
+    This function receives a category ID and returns the name of the category.
+
+    :param category_id: Contains the category ID of the category (e.g., '10').
+    :return: A string representing the name of the category (e.g., 'Music').
+
+    Example:
+    >>> get_category_name('10')
+    'Music'
+    >>> get_category_name('20')
+    'Gaming'
+    """
     category_names = {
         "2": "Autos & Vehicles",
         "1": "Film & Animation",
