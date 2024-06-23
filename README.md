@@ -13,6 +13,8 @@ The dataset for this analysis was created using a two-step process that involved
 
 A Python script named `youtube_scraper.py` was utilized to extract data from an HTML file of YouTube History. This HTML file was obtained through Google Takeout, which provides a detailed export of a user's YouTube activity. Using the BeautifulSoup library, the script parsed the HTML file to extract essential information for each video, including the video title, URL, the time it was played, the channel that posted it, and the channel's URL. This information was then saved into a CSV file named `youtube_data.csv`.
 
+![Alt Text](https://github.com/Johncarlodeveloper/youtube_watch_analytics/blob/main/Output%20CSV%20file%20(2).gif)
+
 However, the HTML file from Google Takeout did not provide all the details required for a comprehensive analysis. To enrich the dataset with additional information, another Python script named `youtube_api.py` was created. This script aimed to fill in the gaps by fetching more data through the YouTube Data API. For each video entry in `youtube_data.csv`, the script extracted the video ID from the URL. With the video ID in hand, the script made API requests to gather further details such as the video's duration, the number of likes it had received, and the total number of comments. This additional data provided a more comprehensive view of each video.
 
 ### Extraction Process
