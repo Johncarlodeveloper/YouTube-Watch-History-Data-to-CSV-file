@@ -1,22 +1,18 @@
-# import necessary libraries
 import csv
-import sys
-
 import isodate
 import logging
 import re
-
 import pandas as pd
 from bs4 import (
     BeautifulSoup,
-)  # for parsing data from html file of YouTube Watch History
+)
 from googleapiclient.discovery import build
 from datetime import datetime
 from dateutil import parser
 
 
 def main():
-    html_file_path = "watch-history.html"
+    html_file_path = "../watch-history.html"
     # The output file as csv
     youtube_data = "youtube_data.csv"
 
