@@ -8,7 +8,7 @@ This project aims to extract data from an HTML file provided by Google Takeout, 
 
 The dataset for this analysis was created using a two-step process that involved web scraping and API requests to gather comprehensive information about the YouTube watch history.
 
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+![Alt Text](https://github.com/Johncarlodeveloper/youtube_watch_analytics/blob/main/Output%20CSV%20file%20(1).gif)
 
 
 A Python script named `youtube_scraper.py` was utilized to extract data from an HTML file of YouTube History. This HTML file was obtained through Google Takeout, which provides a detailed export of a user's YouTube activity. Using the BeautifulSoup library, the script parsed the HTML file to extract essential information for each video, including the video title, URL, the time it was played, the channel that posted it, and the channel's URL. This information was then saved into a CSV file named `youtube_data.csv`.
