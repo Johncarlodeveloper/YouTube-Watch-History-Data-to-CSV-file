@@ -7,12 +7,14 @@ The implementation of general descriptive approaches to the output data will pro
 
 ![Alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/demo_output.gif)
 
+
 ### Get insights base on your History data
 
 ![alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/image.png)
 
-![alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/download%20(2).png)
+### Determine which type of contents you are most engaged with and enjoy the most.
 
+![alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/download%20(3).png)
 
 
 
