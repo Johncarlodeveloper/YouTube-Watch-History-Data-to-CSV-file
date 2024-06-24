@@ -41,7 +41,6 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
 
     # Store extracted information in a list of dictionaries
     videos_data = []
-
     # Find html elements containing the video information
     video_elements = soup.find_all(
         "div", class_="content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1"
