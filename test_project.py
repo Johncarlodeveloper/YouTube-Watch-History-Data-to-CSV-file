@@ -5,8 +5,8 @@ from project import clean_duration_time, process_datetime, get_category_name
 
 def main():
     test_clean_duration_time()
-    test_process_datetime()
     test_get_category_name()
+    test_process_datetime()
 
 
 def test_clean_duration_time():
