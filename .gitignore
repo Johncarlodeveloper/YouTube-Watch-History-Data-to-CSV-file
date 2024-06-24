@@ -1,7 +1,0 @@
-# Ignore Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-# Ignore all Jupyter Notebook files
-*.ipynb
-
-# Include Python files
-!*.py
