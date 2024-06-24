@@ -5,7 +5,16 @@ This project aims to extract data from an HTML file provided by Google Takeout t
 
 The implementation of general descriptive approaches to the output data will provide a comprehensive findings of YouTube usage habits. Check my analysis on my output data [here](URL to navigate).
 
-![Alt text](https://github.com/Johncarlodeveloper/youtube_watch_analytics/demo_output_file).gif)
+![Alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/demo_output.gif)
+
+### Get insights base on your History data
+
+![alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/image.png)
+
+![alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/download%20(2).png)
+
+
+
 
 ### Extraction Process
 
