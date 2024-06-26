@@ -9,7 +9,7 @@ from datetime import datetime
 from dateutil import parser
 from dateutil.parser import ParserError
 
-API_KEY = "AIzaSyC_T4Zkfjj72yyr_CeqrByvEM-QrXCmdvE"
+API_KEY = "<API KEY HERE>"
 
 
 def main():
