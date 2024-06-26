@@ -228,14 +228,14 @@ def extract_data_from_api(youtube_data: str) -> None:
 
                     df.to_csv(youtube_data, index=False, float_format='%.0f')
 
-                    print("Successfully extracted data from YouTube API. Check the updated CSV file.")
-
             except Exception as e:
                 logging.warning(
                     "An error occurred while processing video ID %s: %s",
                     video_id,
                     e,
                 )
+
+    print("Successfully extracted data from YouTube API. Check the updated CSV file.")
 
 
 def clean_duration_time(duration: str) -> str:
