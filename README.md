@@ -1,5 +1,5 @@
-
-# YouTube Watch History Data to CSV
+# Youtube Watch History Findings
+## Discover your viewing preferences and usage patterns based on your YouTube history data.
 
 This project aims to extract data from an HTML file provided by Google Takeout that contains the user's YouTube Watch History, including all of the videos watched with their titles and URLs, the uploader's channel and its URL, and the time they were viewed on YouTube. It will all be stored in a CSV file with additional information for each video, such as its duration, like count, comment count, and description, with the help of the YouTube API. 
 
