@@ -7,17 +7,16 @@ from bs4 import BeautifulSoup
 from googleapiclient.discovery import build
 from datetime import datetime
 from dateutil import parser
+from dateutil.parser import ParserError
 
 API_KEY = "AIzaSyC_T4Zkfjj72yyr_CeqrByvEM-QrXCmdvE"
 
 
 def main():
-    html_file_path = "../watch-history.html"
+    html_file_path = "watch-history.html"
     # The output file as csv
     youtube_data = "youtube_data.csv"
-    # Extract preliminary data from the html file and output in a csv format
-    extract_data_from_html(html_file_path, youtube_data)
-    # Fill in the youtube data csv with additional data from YouTube API
+    # Extract metadata for each video
     extract_data_from_api(youtube_data)
 
 
@@ -59,10 +58,10 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
         In such cases, we skip to the next HTML element and do not include videos with missing information.
         """
         if title is None or (
-            re.search(
+            re.fullmatch(
                 r"https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]+)", title
             )
-        ):
+        ) or title.endswith(".mp4"):
             continue  # Skip to the next video element
 
         url = title_element["href"] if title_element else None
@@ -75,23 +74,24 @@ def extract_data_from_html(html_file_path: str, csv_output_path: str) -> None:
             video_comment_count
         ) = video_description = video_tags = video_duration = video_category = None
 
-        # Find the second <a> tag for the channel name
-        if title_element:
-            channel_element = title_element.find_next("a")
-            if channel_element:
-                channel_name = channel_element.text.strip()
-                channel_url = channel_element["href"]
+        try:
+            # Find the second <a> tag for the channel name
+            if title_element:
+                channel_element = title_element.find_next("a")
+                if channel_element:
+                    channel_name = channel_element.text.strip()
+                    channel_url = channel_element["href"]
 
-                # Find the date and time, which is the text after the channel link
-                date_time_element = channel_element.find_next_sibling(string=True)
-                if date_time_element:
-                    date_time = date_time_element.strip()
-
-                    # Parse the string into a datetime object
-                    dt = parser.parse(date_time, ignoretz=True)
-
-                    # Format the datetime object without timezone information
-                    date_time = dt.strftime("%b %d, %Y, %I:%M:%S %p")
+                    # Find the date and time, which is the text after the channel link
+                    date_time_element = channel_element.find_next_sibling(string=True)
+                    if date_time_element:
+                        date_time = date_time_element.strip()
+                        # Parse the string into a datetime object
+                        dt = parser.parse(date_time, ignoretz=True)
+                        # Format the datetime object without timezone information
+                        date_time = dt.strftime("%b %d, %Y, %I:%M:%S %p")
+        except ParserError:
+            continue
 
         # only the title, url, channel_name, channel_url, and date_time are filled for now
         videos_data.append(
