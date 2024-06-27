@@ -25,7 +25,7 @@ Sample graph categorizing the types of content typically watched/listened to
 
 
 
-#### Check out my full analysis of my output data [here](https://github.com/Johncarlodeveloper/YouTube-History-Data-Analysis).
+#### Check out my full analysis of my output data [here](https://github.com/Johncarlodeveloper/YouTube-History-Data-Analysis/blob/main/history_analysis.ipynb).
 
 
 
