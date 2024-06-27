@@ -1,20 +1,32 @@
-# Youtube Watch History Findings
-## Discover your viewing preferences and usage patterns based on your YouTube history data.
+# Youtube Watch History Data to CSV file
 
-This project aims to extract data from an HTML file provided by Google Takeout that contains the user's YouTube Watch History, including all of the videos watched with their titles and URLs, the uploader's channel and its URL, and the time they were viewed on YouTube. It will all be stored in a CSV file with additional information for each video, such as its duration, like count, comment count, and description, with the help of the YouTube API. 
+This python script extracts data from an HTML file, provided by Google Takeout, that contains the user's YouTube Watch History, including all of the videos watched with their titles and URLs, the uploader's channel and its URL, and the time they were viewed on YouTube. It will all be stored in a CSV file with additional information for each video, such as its duration, like count, comment count, and description, with the help of the YouTube API. 
 
-The implementation of general descriptive approaches to the output data will provide a comprehensive findings of YouTube usage habits. Check my analysis on my output data [here](URL to navigate).
+The implementation of general descriptive approaches to the output data will provide a comprehensive findings of YouTube usage habits.
 
-![Alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/demo_output.gif)
+![Alt text](photos/demo_output.gif)
+
+## With this CSV file in hand, you can perform your own analysis and discover your viewing preferences and usage patterns based on your YouTube history data.
 
 
-### Get insights base on your History data
+### Notable insights you can derive from the output file👀✨:
 
-![alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/image.png)
 
-### Determine which type of contents you are most engaged with and enjoy the most.
+#### Your YouTube usage patterns
+Sample graph displaying the total number of watch/view times per hour.
 
-![alt text](https://github.com/Johncarlodeveloper/YouTube-Watch-History-Data-to-CSV-file/blob/main/download%20(3).png)
+![alt text](photos/houroftheday.png)
+
+#### Type of contents you are most engaged with and enjoy the most.
+Sample graph categorizing the types of content typically watched/listened to
+
+
+![alt text](photos/output.png)
+
+
+
+#### Check out my full analysis of my output data [here](https://github.com/Johncarlodeveloper/YouTube-History-Data-Analysis).
+
 
 
 
@@ -34,14 +46,13 @@ The implementation of general descriptive approaches to the output data will pro
 ## How to Use
 
 **Step 1: Download YouTube Watch History Data**
-- Go to Google Takeout.
-- Select and download your YouTube data archive.
+- Go to [Google Takeout](https://takeout.google.com/).
+- Select and download your YouTube data archive. Ensure it is in HTML file format.
 - Locate the downloaded file in your computer's directory.
 - Find the HTML file named 'watch-history.html' within the archive.
 
 **Step 2: Set Up YouTube API Access**
-- Obtain a YouTube Data API Key:
-- Go to YouTube Data API documentation.
+- Go to [YouTube Data API documentation](https://developers.google.com/youtube/v3/getting-started).
 - Follow the instructions to create and obtain your API key.
 - Make sure to enable the YouTube Data API for your project.
 
@@ -52,13 +63,13 @@ The implementation of general descriptive approaches to the output data will pro
 Clone the project
 
 ```bash
-  git clone https://github.com/Johncarlodeveloper/youtube_watch_analytics
+  git clone https://github.com/Johncarlodeveloper/youtube_watch_history_data_to_csv_file
 ```
 
 Go to the project directory
 
 ```bash
-  cd youtube_watch_history_to_csv
+  cd youtube_watch_history_data_to_csv_file
 ```
 
 Install dependencies
@@ -70,7 +81,12 @@ Install dependencies
 Input your API key into the source code.
 
 ```bash
-  API_KEY = "<API key here>"
+  API_KEY = "<API KEY HERE>"
+```
+Input the path of HTML file.
+
+```bash
+  html_file_path = "<PATH HERE>"
 ```
 
 Run the Python Script:
