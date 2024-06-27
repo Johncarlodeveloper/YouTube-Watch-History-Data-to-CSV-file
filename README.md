@@ -98,8 +98,3 @@ Run the Python Script:
 The data extraction process time varies depending on the size of your YouTube watch history data. This may take up to more than 10 minutes.
 
 
-## Feedback
-
-If you have any feedback, please reach out to me at jhnc.corteza@gmail.com
-
-
